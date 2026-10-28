@@ -73,6 +73,19 @@ struct ExclusionPlannerTests {
         #expect(active.isEmpty)
     }
 
+    // MARK: - Conservative defaults
+
+    @Test func conservativeDefaultsAreOptIn() {
+        #expect(self.plan().realSuffixes.isEmpty)
+        var options = PlannerOptions()
+        options.includeConservativeDefaults = true
+        let plan = ExclusionPlanner.plan(
+            snapshot: .empty, catalog: LocalEndpointCatalog.rules, own: nil, options: options)
+        #expect(plan.realSuffixes == ["local", "lan"])
+        #expect(plan.directRules.contains("DOMAIN-SUFFIX,local,DIRECT"))
+        #expect(plan.directRules.contains("DOMAIN-SUFFIX,lan,DIRECT"))
+    }
+
     // MARK: - Split DNS
 
     @Test func tailscaleSplitDNSUsesMagicDNS() {

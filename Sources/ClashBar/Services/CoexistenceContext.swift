@@ -10,13 +10,16 @@ final class CoexistenceContext: @unchecked Sendable {
     private let lock = NSLock()
     private var plan: ExclusionPlan
     private var snapshot: CoexistenceSnapshot
+    private var options: PlannerOptions
 
-    init(snapshot: CoexistenceSnapshot = .empty) {
+    init(snapshot: CoexistenceSnapshot = .empty, options: PlannerOptions = .default) {
         self.snapshot = snapshot
+        self.options = options
         self.plan = ExclusionPlanner.plan(
             snapshot: snapshot,
             catalog: LocalEndpointCatalog.rules,
-            own: nil)
+            own: nil,
+            options: options)
     }
 
     func currentPlan() -> ExclusionPlan {
@@ -33,13 +36,18 @@ final class CoexistenceContext: @unchecked Sendable {
 
     /// Returns true when the derived plan actually changed.
     @discardableResult
-    func update(snapshot: CoexistenceSnapshot, own: OwnTunInfo?) -> Bool {
+    func update(snapshot: CoexistenceSnapshot, own: OwnTunInfo?, options: PlannerOptions? = nil) -> Bool {
+        self.lock.lock()
+        let effectiveOptions = options ?? self.options
+        self.lock.unlock()
         let updated = ExclusionPlanner.plan(
             snapshot: snapshot,
             catalog: LocalEndpointCatalog.rules,
-            own: own)
+            own: own,
+            options: effectiveOptions)
         self.lock.lock()
         defer { self.lock.unlock() }
+        self.options = effectiveOptions
         let changed = updated != self.plan
         self.plan = updated
         self.snapshot = snapshot

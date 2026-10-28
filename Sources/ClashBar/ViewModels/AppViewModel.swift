@@ -425,6 +425,7 @@ final class AppViewModel: ObservableObject {
     let systemProxyEnabledOnQuitKey = "clashbar.system_proxy.enabled_on_quit"
     let systemProxyExceptionsKey = "clashbar.system_proxy.exceptions.v1"
     let tunStackKey = "clashbar.tun.stack"
+    let conservativeTunDefaultsKey = "clashbar.tun.conservative.defaults"
     let ssidStrategyRulesKey = "clashbar.ssid.strategy.rules.v1"
     let uiLanguageKey = "clashbar.ui.language"
     let appearanceModeKey = "clashbar.ui.appearance.mode"

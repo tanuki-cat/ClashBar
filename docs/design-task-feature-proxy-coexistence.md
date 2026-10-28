@@ -354,3 +354,38 @@ enum Verdict {
 - 两个 Network Extension 同时抢默认路由，优先级由系统决定，**不做也不能做**干预；本方案只保证「检测到并说清楚」。
 - 对方软件若强制改写系统 DNS 且拒绝共存，唯一可靠形态是互斥使用；本方案提供明确提示，不自动结束对方进程。
 - 未知软件的私有协议端点无法穷举，只能通过「已知库 + 动态接口推导」覆盖大多数。
+
+## 16. 实施记录
+
+P1–P5 已全部落地。实现过程中有几处与原始设计的偏差，理由如下，后续维护以本节为准。
+
+| 阶段 | 交付物 | 状态 |
+| --- | --- | --- |
+| P1 | `LocalEndpointCatalog`、`ExclusionPlanner`、`RuntimeOverlay`、`CoexistenceContext` | 完成 |
+| P2 | `CoexistenceDiscovery`、启动与拓扑变化接入 | 完成 |
+| P3 | `ConnectivityDiagnosis`、`TCPReachabilityProbe` | 完成 |
+| P4 | `nameserver-policy` 分域 | 完成 |
+| P5 | 保守默认值开关 | 完成 |
+
+### 偏差说明
+
+1. **未解析路由表**（原 §6.1）
+   原计划从 `netstat -rn` 推导对端接口承载的网段。实际未实现：macOS 的 netstat 输出会压缩地址（如 `100.64/10`、`2/7`），解析脆弱；且更具体的路由本身已能压过 TUN 的 `1/8`…`128.1/1`，路由层面通常不需要额外排除。
+   现在 `DetectedInterface.routedSubnets` 填入该接口自身的网段，真正的广域排除由 catalog 中已知厂商提供。
+
+2. **自身接口未知时不做动态排除**（安全相关）
+   只有在拿到本机 TUN 设备名后，才把其他 `utun/ipsec/feth` 视作对端。否则可能把本机 TUN 网段排除掉，直接导致断网。
+
+3. **诊断为两路对比而非三路**（原 §6.6）
+   保留「可达的完整 HTTPS 请求」与「不依赖 DNS 的 TCP 直连」两路，加上已探测到的对端软件列表即可区分三类问题。核心 DNS 单独探测需要新增 API 端点，收益有限，暂不实现。
+
+4. **`Verdict` 增删**
+   实现为 `ok` / `networkUnreachable` / `dnsInterception([String])` / `resolutionFailure`，原设计中的 `routeCapture` 未实现（依赖第 1 条的路由解析）。
+
+5. **保守默认值用后缀字段**
+   `*.local`、`lan` 这类是通配模式，不能放进 `realDomains`（rule 模式下会生成非法的 `DOMAIN,*.local,real-ip`）。因此新增 `realSuffixes`，按 `fake-ip-filter-mode` 分别生成 `*.suffix` 或 `DOMAIN-SUFFIX,suffix,real-ip`。
+
+### 已知限制
+
+- 订阅中 `dns.nameserver-policy` 若显式配置了同名域名，用户配置优先，插件的分域不生效（有意为之）。
+- 真实订阅的核心校验依赖网络；在 DNS 被接管的故障环境中 `mihomo -t` 可能耗时一分钟以上，测试超时已放宽到 120s。

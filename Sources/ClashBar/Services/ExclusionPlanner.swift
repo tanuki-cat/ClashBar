@@ -58,17 +58,27 @@ struct OwnTunInfo: Equatable, Sendable {
 
 // MARK: - Plan
 
+struct PlannerOptions: Equatable, Sendable {
+    /// Opt-in extra exclusions that reduce blast radius for unrelated traffic.
+    var includeConservativeDefaults = false
+
+    static let `default` = PlannerOptions()
+}
+
 struct ExclusionPlan: Equatable, Sendable {
     var routeExclusions: [String] = []
     /// Domains that must resolve to a real address instead of a fake one.
     var realDomains: [String] = []
+    /// Domain suffixes (mDNS, single-label LAN names) that must never get a fake address.
+    var realSuffixes: [String] = []
     var hostPins: [String: String] = [:]
     var directRules: [String] = []
     var nameserverPolicy: [String: [String]] = [:]
     var sniffingSkips: [String] = []
 
     var isEmpty: Bool {
-        self.routeExclusions.isEmpty && self.realDomains.isEmpty && self.hostPins.isEmpty
+        self.routeExclusions.isEmpty && self.realDomains.isEmpty && self.realSuffixes.isEmpty
+            && self.hostPins.isEmpty
             && self.directRules.isEmpty && self.nameserverPolicy.isEmpty && self.sniffingSkips.isEmpty
     }
 }
@@ -156,12 +166,22 @@ enum ExclusionPlanner {
         "127.0.0.0/8", "224.0.0.0/4", "255.255.255.255/32", "169.254.0.0/16",
     ]
 
+    /// Suffixes that always belong to the local link, regardless of which peer app is installed.
+    static let conservativeSuffixes = ["local", "lan"]
+
     static func plan(
         snapshot: CoexistenceSnapshot,
         catalog: [LocalEndpointRule],
-        own: OwnTunInfo?) -> ExclusionPlan
+        own: OwnTunInfo?,
+        options: PlannerOptions = .default) -> ExclusionPlan
     {
         var plan = ExclusionPlan()
+        if options.includeConservativeDefaults {
+            for suffix in self.conservativeSuffixes {
+                plan.realSuffixes.append(suffix)
+                plan.directRules.append("DOMAIN-SUFFIX," + suffix + ",DIRECT")
+            }
+        }
         let active = catalog.filter { self.isActive($0, snapshot: snapshot) }
 
         var routeBlocks: [CidrBlock] = []
@@ -220,6 +240,7 @@ enum ExclusionPlanner {
         plan.routeExclusions = self.deduplicated(routeBlocks.map { $0.raw })
         plan.directRules = self.deduplicated(plan.directRules)
         plan.realDomains = self.deduplicated(plan.realDomains)
+        plan.realSuffixes = self.deduplicated(plan.realSuffixes)
         plan.sniffingSkips = self.deduplicated(plan.sniffingSkips)
         return plan
     }

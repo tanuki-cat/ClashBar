@@ -170,6 +170,7 @@
 "ui.settings.allow_lan" = "允许局域网";
 "ui.settings.ipv6" = "IPv6";
 "ui.settings.tcp_concurrent" = "TCP 并发";
+"ui.settings.conservative_defaults" = "本地域名不走 FakeIP"
 "ui.settings.log_level" = "日志级别";
 "ui.settings.port.port" = "HTTP 端口";
 "ui.settings.port.socks" = "SOCKS 端口";

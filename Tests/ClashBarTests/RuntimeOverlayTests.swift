@@ -133,6 +133,16 @@ struct RuntimeOverlayTests {
         #expect(self.strings(root["dns"]?["nameserver-policy"]?["mine.example"]) == ["9.9.9.9"])
     }
 
+    @Test func conservativeSuffixesBecomeWildcardFilters() throws {
+        var plan = self.plan
+        plan.realSuffixes = ["local"]
+        let root = try self.output("""
+        dns:
+          fake-ip-filter: ['*.example']
+        """, plan: plan)
+        #expect(self.strings(root["dns"]?["fake-ip-filter"]) == plan.realDomains + ["*.local", "*.example"])
+    }
+
     @Test func booleanSnifferShorthandIsLeftUntouched() throws {
         let root = try self.output("""
         sniffer: true

@@ -45,22 +45,23 @@ enum RuntimeOverlay {
     private static func applyDNS(plan: ExclusionPlan, root: Node) throws -> Node {
         var root = root
         var dns = try self.mapping(root["dns"], field: "dns")
-        if plan.realDomains.isEmpty == false {
+        if plan.realDomains.isEmpty == false || plan.realSuffixes.isEmpty == false {
             let filter = try self.strings(dns["fake-ip-filter"], field: "dns.fake-ip-filter")
             let mode = dns["fake-ip-filter-mode"]?.string?.lowercased() ?? "blacklist"
+            let patternEntries = plan.realDomains + plan.realSuffixes.map { "*." + $0 }
+            let ruleEntries = plan.realDomains.map { "DOMAIN," + $0 + ",real-ip" }
+                + plan.realSuffixes.map { "DOMAIN-SUFFIX," + $0 + ",real-ip" }
             switch mode {
             case "blacklist":
-                dns["fake-ip-filter"] = self.sequence(self.prepending(plan.realDomains, to: filter))
+                dns["fake-ip-filter"] = self.sequence(self.prepending(patternEntries, to: filter))
             case "rule":
-                let rules = plan.realDomains.map { "DOMAIN," + $0 + ",real-ip" }
-                dns["fake-ip-filter"] = self.sequence(self.prepending(rules, to: filter))
+                dns["fake-ip-filter"] = self.sequence(self.prepending(ruleEntries, to: filter))
             case "whitelist":
                 // Keep whitelist semantics: convert to rule mode, protect local endpoints first,
-                // then replay the user's whitelist patterns and close with MATCH,real-ip.
+                // then replay the user whitelist patterns and close with MATCH,real-ip.
                 dns["fake-ip-filter-mode"] = self.scalar("rule")
-                let rules = plan.realDomains.map { "DOMAIN," + $0 + ",real-ip" }
                 let whitelisted = try filter.flatMap(self.whitelistRules)
-                dns["fake-ip-filter"] = self.sequence(rules + whitelisted + ["MATCH,real-ip"])
+                dns["fake-ip-filter"] = self.sequence(ruleEntries + whitelisted + ["MATCH,real-ip"])
             default:
                 throw ConfigError.invalidField("dns.fake-ip-filter-mode")
             }
