@@ -364,6 +364,12 @@
 "log.tun.startup_check_failed" = "启动时校验 TUN 权限失败: %@";
 "log.tun.permission_requesting" = "正在请求管理员权限以启用 TUN 模式...";
 "log.tun.permission_granted" = "TUN 权限授予成功。";
+"log.tun.dns_refreshed" = "TUN 切换或网络配置变化后的 DNS 缓存清理已完成。";
+"log.tun.connectivity_ok" = "TUN 连通性探测通过。";
+"log.tun.connectivity_failed" = "TUN 已开启，但连通性探测失败（不一定是 TUN 故障）：%@。请检查节点、系统 DNS 及 Tailscale/AdGuard 等软件的 DNS 或流量接管设置。";
+"log.tun.recovery_failed" = "TUN 网络恢复失败：%@";
+"log.dns.core_flush_failed" = "Mihomo DNS 缓存清理失败：%@";
+"log.dns.system_flush_failed" = "macOS DNS 缓存清理失败：%@。辅助工具未安装或版本过旧时，请在系统页点击“清理 DNS 缓存”并完成授权。";
 "log.proxy_export.copied" = "已复制代理导出命令";
 "log.logs.copied_all" = "已复制全部日志（%d 条）";
 "log.config.changed_restart" = "配置已变更，正在重启内核";

@@ -39,8 +39,20 @@ extension AppViewModel {
     }
 
     func flushDNSCache() async {
-        await runNoResponseAction(tr("log.action_name.flush_dns_cache")) {
-            try await self.clientOrThrow().requestNoResponse(.flushDNSCache)
+        guard !self.isDNSCacheFlushInFlight else { return }
+        self.cancelTunNetworkRecovery()
+        self.isDNSCacheFlushInFlight = true
+        defer { self.isDNSCacheFlushInFlight = false }
+        do {
+            let failures = try await self.flushDNSCaches(installHelperIfNeeded: true)
+            self.logDNSCacheFailures(failures, level: "error")
+            if failures.isEmpty {
+                self.appendLog(level: "info", message: self.tr(
+                    "log.action.success", self.tr("log.action_name.flush_dns_cache")))
+            }
+        } catch is CancellationError {
+        } catch {
+            self.appendLog(level: "error", message: error.localizedDescription)
         }
     }
 

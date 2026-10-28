@@ -418,6 +418,15 @@ private final class ProxyHelperService: NSObject, ProxyHelperProtocol {
         completion(true, nil)
     }
 
+    func flushSystemDNSCache(completion: @escaping (Bool, String?) -> Void) {
+        do {
+            try SystemDNSCacheFlusher.flush()
+            completion(true, nil)
+        } catch {
+            completion(false, error.localizedDescription)
+        }
+    }
+
     func setSystemProxy(
         host: String,
         httpPort: Int,

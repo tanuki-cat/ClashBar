@@ -362,6 +362,12 @@
 "log.tun.startup_check_failed" = "Startup TUN permission check failed: %@";
 "log.tun.permission_requesting" = "Requesting administrator permissions for TUN mode...";
 "log.tun.permission_granted" = "TUN permissions granted.";
+"log.tun.dns_refreshed" = "DNS caches refreshed after a TUN or network configuration change.";
+"log.tun.connectivity_ok" = "TUN connectivity probe passed.";
+"log.tun.connectivity_failed" = "TUN is enabled, but the connectivity probe failed (not necessarily a TUN fault): %@. Check the proxy node, system DNS, and DNS or traffic interception in Tailscale/AdGuard.";
+"log.tun.recovery_failed" = "TUN network recovery failed: %@";
+"log.dns.core_flush_failed" = "Failed to flush Mihomo DNS cache: %@";
+"log.dns.system_flush_failed" = "Failed to flush macOS DNS cache: %@. If the helper is missing or outdated, click Flush DNS Cache in System and authorize its installation.";
 "log.proxy_export.copied" = "Proxy export command copied";
 "log.logs.copied_all" = "Copied all logs (%d entries)";
 "log.config.changed_restart" = "Config changed, restarting core";

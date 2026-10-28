@@ -17,7 +17,12 @@ extension AppViewModel {
         guard !self.isNetworkReachabilityMonitoring else { return }
         self.isNetworkReachabilityMonitoring = true
 
-        self.networkReachabilityMonitor.start { [weak self] status in
+        self.networkReachabilityMonitor.start(onConfigurationChange: { [weak self] in
+            Task { @MainActor in
+                guard let self, self.isNetworkReachabilityMonitoring, self.isTunEnabled else { return }
+                self.scheduleTunNetworkRecovery(afterNetworkChange: true)
+            }
+        }) { [weak self] status in
             Task { @MainActor in
                 self?.handleNetworkReachabilityStatus(status)
             }
@@ -25,6 +30,7 @@ extension AppViewModel {
     }
 
     func stopNetworkReachabilityMonitoring() {
+        self.cancelTunNetworkRecovery()
         self.networkAutoStopTask?.cancel()
         self.networkAutoStopTask = nil
         self.networkAutoStartTask?.cancel()

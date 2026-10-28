@@ -8,6 +8,7 @@ extension AppViewModel {
             guard status.isConnected else { return }
         }
 
+        self.cancelTunNetworkRecovery()
         self.remoteMachineStore.selectTarget(target)
 
         self.cancelPolling()

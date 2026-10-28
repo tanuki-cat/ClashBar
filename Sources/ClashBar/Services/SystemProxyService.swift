@@ -113,6 +113,15 @@ struct SystemProxyService {
         }
     }
 
+    func flushSystemDNSCache(installIfNeeded: Bool = false) async throws {
+        try Task.checkCancellation()
+        try await self.ensureHelperReadyForUse(installIfNeeded: installIfNeeded)
+        try Task.checkCancellation()
+        try await self.invokeMutation { helper, completion in
+            helper.flushSystemDNSCache(completion: completion)
+        }
+    }
+
     func isEnabled() async throws -> Bool {
         try await self.ensureHelperReadyForUse(installIfNeeded: false)
         return try await self.invokeStateQuery()

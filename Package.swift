@@ -27,4 +27,12 @@ let package = Package(
             name: "ClashBarProxyHelper",
             dependencies: ["ProxyHelperShared"],
             path: "Sources/ProxyHelper/Daemon"),
+        .testTarget(
+            name: "ClashBarTests",
+            dependencies: ["ClashBar"],
+            path: "Tests/ClashBarTests"),
+        .testTarget(
+            name: "ProxyHelperTests",
+            dependencies: ["ClashBarProxyHelper"],
+            path: "Tests/ProxyHelperTests"),
     ])

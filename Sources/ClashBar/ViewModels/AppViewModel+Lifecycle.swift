@@ -346,6 +346,7 @@ extension AppViewModel {
         defaults.set(configPath, forKey: lastSuccessfulConfigPathKey)
         startupErrorMessage = nil
         await self.restoreCoreFeaturesAfterStartupIfNeeded()
+        if self.isTunEnabled { self.scheduleTunNetworkRecovery() }
         enforceNetworkManagedCorePolicyIfNeeded()
 
         if options.autoTestGroupLatencies {

@@ -161,7 +161,10 @@ final class AppViewModel: ObservableObject {
     }
 
     @Published var isTunEnabled: Bool = false {
-        didSet { self.refreshMenuBarDisplaySnapshotIfNeeded() }
+        didSet {
+            self.refreshMenuBarDisplaySnapshotIfNeeded()
+            if self.isTunEnabled != oldValue { self.scheduleTunNetworkRecovery() }
+        }
     }
 
     @Published var isTunSyncing: Bool = false
@@ -375,6 +378,10 @@ final class AppViewModel: ObservableObject {
     var providerRefreshTask: Task<Void, Never>?
     var networkAutoStopTask: Task<Void, Never>?
     var networkAutoStartTask: Task<Void, Never>?
+    var tunNetworkRecoveryTask: Task<Void, Never>?
+    var tunNetworkRecoveryGeneration = 0
+    var lastTunNetworkRecoveryAt: ContinuousClock.Instant?
+    var isDNSCacheFlushInFlight = false
     var deferredEditableSettingsOverlayTask: Task<Void, Never>?
     var coreUpgradeFeedbackClearTask: Task<Void, Never>?
     var geoUpdateFeedbackClearTask: Task<Void, Never>?

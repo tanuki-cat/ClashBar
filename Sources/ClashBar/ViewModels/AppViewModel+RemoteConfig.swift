@@ -325,9 +325,16 @@ extension AppViewModel {
                 appendLog(level: "error", message: tr("log.start.no_config"))
                 return
             }
+            let target = self.remoteMachineStore.activeTarget
+            guard self.remoteMachineStore.activeTarget == target,
+                  self.isRemoteTarget || self.configService.selectedConfig?.path == configPath
+            else { throw CancellationError() }
             try await self.clientOrThrow().requestNoResponse(.putConfigs(force: false, path: configPath, payload: nil))
+            guard self.remoteMachineStore.activeTarget == target else { throw CancellationError() }
             try await self.restoreTunAfterConfigReloadIfNeeded(expectedEnabled: expectedTunEnabled)
+            if !self.isRemoteTarget { self.scheduleTunNetworkRecovery() }
             appendLog(level: "info", message: tr("log.action.success", actionName))
+        } catch is CancellationError {
         } catch {
             appendLog(level: "error", message: tr("log.action.failed", actionName, error.localizedDescription))
         }

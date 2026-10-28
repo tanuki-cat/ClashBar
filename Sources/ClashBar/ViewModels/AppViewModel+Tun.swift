@@ -96,6 +96,7 @@ extension AppViewModel {
                 if !self.isRemoteTarget {
                     defaults.set(stack, forKey: tunStackKey)
                 }
+                self.scheduleTunNetworkRecovery()
                 appendLog(level: "info", message: tr("log.tun.stack_changed", stack))
             } else {
                 appendLog(

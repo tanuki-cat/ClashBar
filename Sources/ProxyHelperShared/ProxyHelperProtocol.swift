@@ -8,7 +8,7 @@ public enum ProxyHelperConstants {
     public static let installedHelperPath = "/Library/PrivilegedHelperTools/com.clashbar.helper"
     public static let installedPlistPath = "/Library/LaunchDaemons/com.clashbar.helper.plist"
     public static let installedVersionPath = "/Library/PrivilegedHelperTools/com.clashbar.helper.version"
-    public static let helperVersion = 2
+    public static let helperVersion = 3
     public static let allowedClientBundleIdentifier = "com.clashbar"
     public static let allowedClientRequirement = "identifier \"\(allowedClientBundleIdentifier)\""
 }
@@ -16,6 +16,7 @@ public enum ProxyHelperConstants {
 @objc(ProxyHelperProtocol)
 public protocol ProxyHelperProtocol {
     func ping(completion: @escaping (Bool, String?) -> Void)
+    func flushSystemDNSCache(completion: @escaping (Bool, String?) -> Void)
     func setSystemProxy(
         host: String,
         httpPort: Int,
