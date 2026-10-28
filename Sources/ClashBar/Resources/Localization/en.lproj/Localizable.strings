@@ -168,7 +168,7 @@
 "ui.settings.allow_lan" = "Allow LAN";
 "ui.settings.ipv6" = "IPv6";
 "ui.settings.tcp_concurrent" = "TCP Concurrent";
-"ui.settings.conservative_defaults" = "Keep local names off FakeIP"
+"ui.settings.conservative_defaults" = "Keep local names off FakeIP";
 "ui.settings.log_level" = "Log Level";
 "ui.settings.port.port" = "HTTP Port";
 "ui.settings.port.socks" = "SOCKS Port";
@@ -365,9 +365,9 @@
 "log.tun.permission_granted" = "TUN permissions granted.";
 "log.adguard.compatibility_skipped" = "AdGuard compatibility skipped; using the original config: %@";
 "log.coexistence.detected" = "Detected other network interceptors: %@";
-"log.diagnosis.network_unreachable" = "Diagnosis: even a literal IP is unreachable, so the issue is not TUN or DNS; check the local network and the proxy node."
-"log.diagnosis.dns_interception" = "Diagnosis: literal IP works but name-based access fails; DNS is likely taken over by another app (%@)."
-"log.diagnosis.resolution_failure" = "Diagnosis: literal IP works but name-based access fails; no other interceptor detected, check the DNS configuration."
+"log.diagnosis.network_unreachable" = "Diagnosis: even a literal IP is unreachable, so the issue is not TUN or DNS; check the local network and the proxy node.";
+"log.diagnosis.dns_interception" = "Diagnosis: literal IP works but name-based access fails; DNS is likely taken over by another app (%@).";
+"log.diagnosis.resolution_failure" = "Diagnosis: literal IP works but name-based access fails; no other interceptor detected, check the DNS configuration.";
 "log.tun.dns_refreshed" = "DNS caches refreshed after a TUN or network configuration change.";
 "log.tun.connectivity_ok" = "TUN connectivity probe passed.";
 "log.tun.connectivity_failed" = "TUN is enabled, but the connectivity probe failed (not necessarily a TUN fault): %@. Check the proxy node, system DNS, and DNS or traffic interception in Tailscale/AdGuard.";
