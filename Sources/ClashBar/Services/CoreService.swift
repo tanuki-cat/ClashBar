@@ -221,7 +221,12 @@ final class MihomoProcessManager: MihomoControlling, @unchecked Sendable {
         let proc = Process()
         proc.executableURL = URL(fileURLWithPath: binary)
         proc.currentDirectoryURL = workingDirectoryURL
-        proc.arguments = ["-d", workingDirectoryURL.path, "-f", configPath, "-t"]
+        let prepared = LocalCoreRuntimeConfig.prepareResult(
+            sourceURL: URL(fileURLWithPath: configPath), workingDirectoryURL: workingDirectoryURL)
+        if let failure = prepared.compatibilityFailure {
+            self.onLog?("[adguard compatibility] skipped, using original config: \(failure.localizedDescription)")
+        }
+        proc.arguments = ["-d", workingDirectoryURL.path, "-f", prepared.url.path, "-t"]
 
         let outputPipe = Pipe()
         proc.standardOutput = outputPipe
@@ -295,7 +300,12 @@ final class MihomoProcessManager: MihomoControlling, @unchecked Sendable {
         let workingDirectoryURL = Self.resolveWorkingDirectoryURL(configPath: configPath)
         proc.currentDirectoryURL = workingDirectoryURL
 
-        let args = ["-d", workingDirectoryURL.path, "-f", configPath, "-ext-ctl", controller]
+        let prepared = LocalCoreRuntimeConfig.prepareResult(
+            sourceURL: URL(fileURLWithPath: configPath), workingDirectoryURL: workingDirectoryURL)
+        if let failure = prepared.compatibilityFailure {
+            self.onLog?("[adguard compatibility] skipped, using original config: \(failure.localizedDescription)")
+        }
+        let args = ["-d", workingDirectoryURL.path, "-f", prepared.url.path, "-ext-ctl", controller]
         proc.arguments = args
 
         let stdout = Pipe()
