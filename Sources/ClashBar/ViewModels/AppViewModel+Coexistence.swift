@@ -16,9 +16,26 @@ extension AppViewModel {
         let snapshot = await Task.detached(priority: .utility) {
             CoexistenceDiscovery.snapshot()
         }.value
-        let changed = CoexistenceContext.shared.update(snapshot: snapshot, own: own)
+        var options = PlannerOptions()
+        options.includeConservativeDefaults = self.conservativeTunDefaultsEnabled
+        let changed = CoexistenceContext.shared.update(snapshot: snapshot, own: own, options: options)
         if changed { self.logCoexistenceSummary(snapshot) }
         return changed
+    }
+
+    var conservativeTunDefaultsEnabled: Bool {
+        self.defaults.bool(forKey: self.conservativeTunDefaultsKey)
+    }
+
+    /// Persists the switch and immediately re-derives the plan, reloading the core when it changes.
+    func setConservativeTunDefaults(_ enabled: Bool) {
+        self.defaults.set(enabled, forKey: self.conservativeTunDefaultsKey)
+        Task { [weak self] in
+            guard let self else { return }
+            let changed = await self.refreshCoexistencePlan()
+            guard changed, self.isRuntimeRunning else { return }
+            self.scheduleCoexistenceApply()
+        }
     }
 
     func logCoexistenceSummary(_ snapshot: CoexistenceSnapshot) {

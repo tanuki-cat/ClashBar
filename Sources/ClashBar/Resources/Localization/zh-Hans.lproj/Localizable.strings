@@ -112,6 +112,7 @@
 "ui.section.proxy_groups" = "代理组";
 "ui.section.basic_settings" = "基础设置";
 "ui.section.proxy_ports" = "代理端口";
+"ui.section.coexistence" = "共存兼容";
 "ui.section.system_proxy_exceptions" = "代理绕过";
 "ui.section.maintenance" = "系统维护";
 "ui.action.update_geo_database" = "更新 Geo 数据库";

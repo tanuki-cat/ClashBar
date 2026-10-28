@@ -110,6 +110,7 @@
 "ui.section.proxy_groups" = "Proxy Groups";
 "ui.section.basic_settings" = "Basic Settings";
 "ui.section.proxy_ports" = "Proxy Ports";
+"ui.section.coexistence" = "Coexistence";
 "ui.section.system_proxy_exceptions" = "Proxy Bypass";
 "ui.section.maintenance" = "Maintenance";
 "ui.action.update_geo_database" = "Update Geo Database";

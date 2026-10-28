@@ -523,6 +523,20 @@ struct SystemTabView: TranslatingView {
                 }
             }
 
+            if !isRemote {
+                VStack(spacing: 0) {
+                    self.settingsCardHeader(
+                        self.tr("ui.section.coexistence"),
+                        symbol: "shield.lefthalf.filled")
+                    self.settingsToggleRow(
+                        self.tr("ui.settings.conservative_defaults"),
+                        symbol: "network.badge.shield.half.filled",
+                        isOn: Binding(
+                            get: { self.appViewModel.conservativeTunDefaultsEnabled },
+                            set: { self.appViewModel.setConservativeTunDefaults($0) }))
+                }
+            }
+
             VStack(spacing: 0) {
                 self.settingsCardHeader(
                     self.tr("ui.section.proxy_ports"),
