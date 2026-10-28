@@ -71,9 +71,12 @@ extension AppViewModel {
                     } catch {
                         try validate()
                         if attempt == 1 {
+                            let diagnosis = await self.diagnoseTunConnectivity(url: url)
+                            if diagnosis.verdict == .ok { return }
                             self.appendLog(
                                 level: "warning",
                                 message: self.tr("log.tun.connectivity_failed", error.localizedDescription))
+                            self.logConnectivityDiagnosis(diagnosis)
                         } else {
                             try await Task.sleep(for: .seconds(1))
                         }

@@ -9,8 +9,8 @@ struct RuntimeOverlayTests {
         ExclusionPlanner.plan(snapshot: .empty, catalog: LocalEndpointCatalog.rules, own: nil)
     }
 
-    private func output(_ source: String) throws -> Node {
-        let payload = try RuntimeOverlay.apply(source: source, plan: self.plan)
+    private func output(_ source: String, plan overridePlan: ExclusionPlan? = nil) throws -> Node {
+        let payload = try RuntimeOverlay.apply(source: source, plan: overridePlan ?? self.plan)
         let node = try Yams.compose(yaml: payload)
         return try #require(node)
     }
@@ -118,6 +118,19 @@ struct RuntimeOverlayTests {
         let filter = self.strings(root["dns"]?["fake-ip-filter"])
         #expect(filter.contains("local.adguard.org"))
         #expect(Array(self.strings(root["rules"]).prefix(self.plan.directRules.count)) == self.plan.directRules)
+    }
+
+    @Test func splitDNSBecomesNameserverPolicyWithoutOverridingUserPolicy() throws {
+        var plan = self.plan
+        plan.nameserverPolicy = ["ts.net": ["100.100.100.100"], "mine.example": ["1.1.1.1"]]
+        let root = try self.output("""
+        dns:
+          nameserver: [223.5.5.5]
+          nameserver-policy:
+            mine.example: [9.9.9.9]
+        """, plan: plan)
+        #expect(self.strings(root["dns"]?["nameserver-policy"]?["ts.net"]) == ["100.100.100.100"])
+        #expect(self.strings(root["dns"]?["nameserver-policy"]?["mine.example"]) == ["9.9.9.9"])
     }
 
     @Test func booleanSnifferShorthandIsLeftUntouched() throws {

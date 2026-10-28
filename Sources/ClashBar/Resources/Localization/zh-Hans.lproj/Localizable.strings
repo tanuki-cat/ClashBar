@@ -366,6 +366,9 @@
 "log.tun.permission_granted" = "TUN 权限授予成功。";
 "log.adguard.compatibility_skipped" = "AdGuard 兼容处理已跳过，使用原始配置：%@";
 "log.coexistence.detected" = "检测到其他网络接管软件: %@";
+"log.diagnosis.network_unreachable" = "诊断: 直连 IP 也不可达，问题不在 TUN 或 DNS，请检查本机网络与节点。"
+"log.diagnosis.dns_interception" = "诊断: 直连 IP 正常但域名访问失败，DNS 很可能被其他软件接管（%@）。"
+"log.diagnosis.resolution_failure" = "诊断: 直连 IP 正常但域名访问失败，未检测到其他接管软件，请检查 DNS 配置。"
 "log.tun.dns_refreshed" = "TUN 切换或网络配置变化后的 DNS 缓存清理已完成。";
 "log.tun.connectivity_ok" = "TUN 连通性探测通过。";
 "log.tun.connectivity_failed" = "TUN 已开启，但连通性探测失败（不一定是 TUN 故障）：%@。请检查节点、系统 DNS 及 Tailscale/AdGuard 等软件的 DNS 或流量接管设置。";

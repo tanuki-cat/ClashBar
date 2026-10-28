@@ -181,6 +181,9 @@ enum ExclusionPlanner {
             for (domain, address) in rule.pinnedHosts.sorted(by: { $0.key < $1.key }) {
                 plan.hostPins[domain] = address
             }
+            for (domain, servers) in rule.splitDNS where servers.isEmpty == false {
+                plan.nameserverPolicy[domain] = servers
+            }
             plan.sniffingSkips.append(contentsOf: rule.domains)
         }
 
@@ -193,6 +196,23 @@ enum ExclusionPlanner {
                           self.isAcceptable(block, snapshot: snapshot, own: own)
                     else { continue }
                     routeBlocks.append(block)
+                }
+            }
+        }
+
+        // Split DNS discovered from live scoped resolvers, limited to peer interfaces that exist.
+        if let own {
+            let peers = Set(
+                snapshot.interfaces.filter { self.isPeerInterface($0, own: own) }.map { $0.name.lowercased() })
+            for resolver in snapshot.resolvers {
+                guard let name = resolver.interfaceName?.lowercased(), peers.contains(name),
+                      resolver.nameservers.isEmpty == false
+                else { continue }
+                for domain in resolver.searchDomains where domain.isEmpty == false {
+                    // Explicit catalog entries and user policy win over discovery.
+                    if plan.nameserverPolicy[domain] == nil {
+                        plan.nameserverPolicy[domain] = resolver.nameservers
+                    }
                 }
             }
         }

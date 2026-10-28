@@ -19,6 +19,8 @@ struct LocalEndpointRule: Equatable, Sendable {
     let activation: LocalEndpointActivation
     /// Domains whose resolution must be pinned to a fixed address.
     let pinnedHosts: [String: String]
+    /// Domains that must be resolved by a specific resolver owned by the peer app.
+    let splitDNS: [String: [String]]
 
     init(
         id: String,
@@ -26,7 +28,8 @@ struct LocalEndpointRule: Equatable, Sendable {
         domains: [String] = [],
         addresses: [String] = [],
         activation: LocalEndpointActivation,
-        pinnedHosts: [String: String] = [:])
+        pinnedHosts: [String: String] = [:],
+        splitDNS: [String: [String]] = [:])
     {
         self.id = id
         self.displayName = displayName
@@ -34,6 +37,7 @@ struct LocalEndpointRule: Equatable, Sendable {
         self.addresses = addresses
         self.activation = activation
         self.pinnedHosts = pinnedHosts
+        self.splitDNS = splitDNS
     }
 }
 
@@ -59,7 +63,9 @@ enum LocalEndpointCatalog {
             addresses: ["100.64.0.0/10", "100.100.100.100/32", "fd7a:115c:a1e0::/48"],
             // Excluding a CGNAT range unconditionally would break users who really route 100.64/10.
             activation: .whenExtensionPresent(
-                bundleIdentifier: "io.tailscale.ipn.macsys.network-extension")),
+                bundleIdentifier: "io.tailscale.ipn.macsys.network-extension"),
+            // MagicDNS only answers tailnet names; everything else must keep using the tunnel.
+            splitDNS: ["ts.net": ["100.100.100.100"]]),
         LocalEndpointRule(
             id: "zerotier",
             displayName: "ZeroTier",

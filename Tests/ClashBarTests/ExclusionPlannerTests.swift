@@ -73,6 +73,35 @@ struct ExclusionPlannerTests {
         #expect(active.isEmpty)
     }
 
+    // MARK: - Split DNS
+
+    @Test func tailscaleSplitDNSUsesMagicDNS() {
+        let snapshot = CoexistenceSnapshot(extensions: [
+            DetectedExtension(bundleIdentifier: LocalEndpointCatalog.tailscaleBundleIdentifier),
+        ])
+        let plan = self.plan(snapshot: snapshot)
+        #expect(plan.nameserverPolicy["ts.net"] == ["100.100.100.100"])
+    }
+
+    @Test func splitDNSFromScopedResolversOnlyAppliesToPeerInterfaces() {
+        let snapshot = CoexistenceSnapshot(
+            interfaces: [
+                DetectedInterface(name: "utun4", family: .v4, address: "100.100.1.2", prefixLength: 32,
+                                  routedSubnets: []),
+                DetectedInterface(name: "en0", family: .v4, address: "192.168.30.9", prefixLength: 24,
+                                  routedSubnets: []),
+            ],
+            resolvers: [
+                ScopedResolver(interfaceName: "utun4", nameservers: ["100.100.100.100"],
+                               searchDomains: ["corp.ts.net"]),
+                ScopedResolver(interfaceName: "en0", nameservers: ["192.168.30.1"],
+                               searchDomains: ["office.lan"]),
+            ])
+        let plan = self.plan(snapshot: snapshot, own: OwnTunInfo(deviceName: "utun9"))
+        #expect(plan.nameserverPolicy["corp.ts.net"] == ["100.100.100.100"])
+        #expect(plan.nameserverPolicy["office.lan"] == nil)
+    }
+
     // MARK: - Dynamic interfaces
 
     @Test func peerInterfaceRoutesBecomeExclusions() {
