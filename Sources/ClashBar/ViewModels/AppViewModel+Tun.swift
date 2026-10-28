@@ -334,6 +334,10 @@ extension AppViewModel {
     func refreshTunStatusFromRuntimeConfig() async {
         do {
             let config = try await fetchRuntimeConfigSnapshot()
+            if let tun = config.tun {
+                self.tunDeviceName = tun.device
+                self.tunSubnets = (tun.inet4Address ?? []) + (tun.inet6Address ?? [])
+            }
             if let tunEnabled = config.tunEnabled, isTunEnabled != tunEnabled {
                 isTunEnabled = tunEnabled
                 persistEditableSettingsSnapshot()

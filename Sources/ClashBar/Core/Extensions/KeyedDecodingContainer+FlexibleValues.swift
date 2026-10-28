@@ -39,6 +39,11 @@ extension KeyedDecodingContainer {
         return nil
     }
 
+    func decodeFlexibleStringArray(forKey key: Key) -> [String]? {
+        guard let values = try? self.decodeIfPresent([String].self, forKey: key) else { return nil }
+        return values
+    }
+
     func decodeFlexibleString(forKey key: Key) -> String? {
         if let value = try? self.decodeIfPresent(String.self, forKey: key) {
             return value.trimmedNonEmpty

@@ -382,6 +382,9 @@ final class AppViewModel: ObservableObject {
     var tunNetworkRecoveryGeneration = 0
     var lastTunNetworkRecoveryAt: ContinuousClock.Instant?
     var isDNSCacheFlushInFlight = false
+    var tunDeviceName: String?
+    var tunSubnets: [String] = []
+    var coexistenceApplyTask: Task<Void, Never>?
     var deferredEditableSettingsOverlayTask: Task<Void, Never>?
     var coreUpgradeFeedbackClearTask: Task<Void, Never>?
     var geoUpdateFeedbackClearTask: Task<Void, Never>?

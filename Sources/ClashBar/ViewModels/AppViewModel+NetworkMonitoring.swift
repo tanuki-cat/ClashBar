@@ -19,7 +19,9 @@ extension AppViewModel {
 
         self.networkReachabilityMonitor.start(onConfigurationChange: { [weak self] in
             Task { @MainActor in
-                guard let self, self.isNetworkReachabilityMonitoring, self.isTunEnabled else { return }
+                guard let self, self.isNetworkReachabilityMonitoring else { return }
+                await self.handleCoexistenceTopologyChange()
+                guard self.isTunEnabled else { return }
                 self.scheduleTunNetworkRecovery(afterNetworkChange: true)
             }
         }) { [weak self] status in

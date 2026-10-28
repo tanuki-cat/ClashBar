@@ -36,6 +36,8 @@ extension AppViewModel {
             }
 
             settingsOverlay = try await prepareTunOverlayForCoreStartup(settingsOverlay)
+            // Probe the topology before validation so the runtime copy carries current exclusions.
+            await self.refreshCoexistencePlan()
 
             guard await self.validateConfigBeforeCoreLaunch(configPath: configPath) else {
                 preserveLocalSettingsOnNextSync = false
@@ -65,6 +67,8 @@ extension AppViewModel {
                     refreshSystemProxyBeforeOverlay: true,
                     refreshSystemProxyAfterBootstrap: false,
                     autoTestGroupLatencies: true))
+            // Our own tunnel device is only known once the core reports it.
+            await self.handleCoexistenceTopologyChange()
         } catch {
             preserveLocalSettingsOnNextSync = false
             let message = tr("log.start.failed", self.coreErrorMessage(error))

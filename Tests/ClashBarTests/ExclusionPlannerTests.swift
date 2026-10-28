@@ -82,7 +82,9 @@ struct ExclusionPlannerTests {
                     name: "utun4", family: .v4, address: "100.100.1.2", prefixLength: 32,
                     routedSubnets: ["100.64.0.0/10"]),
             ])
-        let plan = self.plan(snapshot: snapshot)
+        // Dynamic exclusions need our own interface name to tell peers apart.
+        #expect(!self.plan(snapshot: snapshot).routeExclusions.contains("100.64.0.0/10"))
+        let plan = self.plan(snapshot: snapshot, own: OwnTunInfo(deviceName: "utun9"))
         #expect(plan.routeExclusions.contains("100.64.0.0/10"))
     }
 

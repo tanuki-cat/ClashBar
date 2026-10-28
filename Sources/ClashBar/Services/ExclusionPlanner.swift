@@ -30,9 +30,16 @@ struct DetectedExtension: Equatable, Sendable {
     }
 }
 
+struct ScopedResolver: Equatable, Sendable {
+    let interfaceName: String?
+    let nameservers: [String]
+    let searchDomains: [String]
+}
+
 struct CoexistenceSnapshot: Equatable, Sendable {
     var interfaces: [DetectedInterface] = []
     var extensions: [DetectedExtension] = []
+    var resolvers: [ScopedResolver] = []
     /// Subnets of physical interfaces; they must never be excluded from the tunnel.
     var physicalSubnets: [String] = []
 
@@ -177,13 +184,16 @@ enum ExclusionPlanner {
             plan.sniffingSkips.append(contentsOf: rule.domains)
         }
 
-        // Dynamic part: subnets actually carried by other tunnel interfaces.
-        for interface in snapshot.interfaces where self.isPeerInterface(interface, own: own) {
-            for subnet in interface.routedSubnets {
-                guard let block = CidrBlock(subnet), self.isAcceptable(block, snapshot: snapshot, own: own) else {
-                    continue
+        // Dynamic part: subnets carried by other tunnel interfaces. Without knowing which
+        // interface is ours we cannot tell them apart, so the catalog alone applies.
+        if let own {
+            for interface in snapshot.interfaces where self.isPeerInterface(interface, own: own) {
+                for subnet in interface.routedSubnets {
+                    guard let block = CidrBlock(subnet),
+                          self.isAcceptable(block, snapshot: snapshot, own: own)
+                    else { continue }
+                    routeBlocks.append(block)
                 }
-                routeBlocks.append(block)
             }
         }
 

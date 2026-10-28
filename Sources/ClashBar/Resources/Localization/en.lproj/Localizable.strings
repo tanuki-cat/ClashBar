@@ -363,6 +363,7 @@
 "log.tun.permission_requesting" = "Requesting administrator permissions for TUN mode...";
 "log.tun.permission_granted" = "TUN permissions granted.";
 "log.adguard.compatibility_skipped" = "AdGuard compatibility skipped; using the original config: %@";
+"log.coexistence.detected" = "Detected other network interceptors: %@";
 "log.tun.dns_refreshed" = "DNS caches refreshed after a TUN or network configuration change.";
 "log.tun.connectivity_ok" = "TUN connectivity probe passed.";
 "log.tun.connectivity_failed" = "TUN is enabled, but the connectivity probe failed (not necessarily a TUN fault): %@. Check the proxy node, system DNS, and DNS or traffic interception in Tailscale/AdGuard.";

@@ -71,21 +71,34 @@ struct ConfigSnapshot: Codable, Equatable {
     struct TunConfig: Codable, Equatable {
         let enable: Bool?
         let stack: String?
+        /// Present in the runtime snapshot; used to identify our own tunnel during discovery.
+        let device: String?
+        let inet4Address: [String]?
+        let inet6Address: [String]?
 
         private enum CodingKeys: String, CodingKey {
             case enable
             case stack
+            case device
+            case inet4Address = "inet4-address"
+            case inet6Address = "inet6-address"
         }
 
         init(enable: Bool?, stack: String?) {
             self.enable = enable
             self.stack = stack
+            self.device = nil
+            self.inet4Address = nil
+            self.inet6Address = nil
         }
 
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             self.enable = container.decodeFlexibleBool(forKey: .enable)
             self.stack = container.decodeFlexibleString(forKey: .stack)
+            self.device = container.decodeFlexibleString(forKey: .device)
+            self.inet4Address = container.decodeFlexibleStringArray(forKey: .inet4Address)
+            self.inet6Address = container.decodeFlexibleStringArray(forKey: .inet6Address)
         }
     }
 
